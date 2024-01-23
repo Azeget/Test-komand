@@ -1,3 +1,6 @@
+from duty.objects import dp, MySignalEvent
+from duty.utils import find_mention_by_event
+
 @dp.my_signal_event_register('+адмч')
 def grant_admin(event: MySignalEvent) -> str:
     user_id = event.obj.from_id 
