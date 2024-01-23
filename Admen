@@ -1,0 +1,38 @@
+@dp.my_signal_event_register('+адмч')
+def grant_admin(event: MySignalEvent) -> str:
+    user_id = event.obj.from_id 
+    chat_id = event.chat_id  
+
+    target_user_id = find_mention_by_event(event)
+
+    try:
+        if not user_has_admin_rights_in_chat(user_id, chat_id):
+            raise Exception("Нет прав на выдачу администраторских прав")
+
+        if user_is_chat_admin(target_user_id, chat_id):
+            raise Exception("Пользователь уже является администратором")
+
+        event.api.messages.addChatUser(chat_id=chat_id, user_id=target_user_id, visible_messages=True)
+
+        return "ok"
+    except Exception as e:
+        return str(e)
+
+
+@dp.my_signal_event_register('-адмч')
+def revoke_admin(event: MySignalEvent) -> str:
+    user_id = event.obj.from_id 
+    chat_id = event.chat_id  
+    target_user_id = find_mention_by_event(event)
+
+    try:
+        if not user_has_admin_rights_in_chat(user_id, chat_id):
+            raise Exception("Нет прав на забирание администраторских прав")
+
+        if not user_is_chat_admin(target_user_id, chat_id):
+            raise Exception("Пользователь не является администратором")
+        event.api.messages.removeChatUser(chat_id=chat_id, user_id=target_user_id)
+
+        return "ok"
+    except Exception as e:
+        return str(e)
