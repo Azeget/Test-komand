@@ -1,0 +1,29 @@
+@dp.my_signal_event_register('выбери')
+def choose_person(event: MySignalEvent) -> str:
+    message_text = event.obj.text
+    user_id = event.obj.from_id
+    chat_id = event.chat_id
+
+    try:
+        options = message_text.split('выбери', 1)[1].strip().split(' или ')
+        if len(options) < 2:
+            event.api.messages.send(
+                message="А из чего мне выбирать?",
+                peer_id=chat_id,
+                random_id=0
+            )
+        else:
+            chosen_option = random.choice(options)
+            event.api.messages.edit(
+                peer_id=chat_id,
+                message_id=event.obj.conversation_message_id,
+                message=f"Я выбираю: {chosen_option}"
+            )
+    except Exception as e:
+        event.api.messages.send(
+            message="Что-то пошло не так, повтори позже",
+            peer_id=chat_id,
+            random_id=0
+        )
+
+    return "ok"
